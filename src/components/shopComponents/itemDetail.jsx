@@ -1,34 +1,61 @@
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { useProducts } from "@/data/useProductStore";
+import { client } from "@/sanity/lib/client";
+import { Heart } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import arrow from "../../../public/assets/arrowImage.svg";
 import fullStar from "../../../public/assets/fullStar.svg";
 import halfStar from "../../../public/assets/halfStar.svg";
-import { Heart } from "lucide-react";
-import ColorSelector from "./colorSelector";
-import SizeChoise from "./sizeChoise";
-import ItemSku from "./itemSku";
-import ItemDescription from "./itemDescription";
-import ItemCart from "./itemCart";
-import Navbar from "../navbar";
 import Footer from "../authComponents/authFooter/authFooter";
 import TopPicks from "../homeComponents/topPicks";
+import Navbar from "../navbar";
 import CartPopup from "./cartPopup";
+import ColorSelector from "./colorSelector";
+import ItemCart from "./itemCart";
+import ItemDescription from "./itemDescription";
+import ItemSku from "./itemSku";
+import SizeChoise from "./sizeChoise";
+
+const query = `*[_type == "product"]{
+  _id,
+  name,
+  "imageUrl": imageUrl.asset->url,
+  price,
+  description,
+  discountPercentage,
+  isFeaturedProduct,
+  stockLevel,
+  category,
+}`;
 
 const ItemDetail = ({ itemID }) => {
-  const { products } = useProducts();
-  const [product, setProduct] = useState({});
+  const router = useRouter();
+  const id = router.query;
+
+  const [product, setProduct] = useState();
   const [isShown, setIsShown] = useState(false);
+
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const pro = await client.fetch(query);
+        const index = pro.findIndex((item) => item._id == id.itemID);
+        const oneProduct = pro[index]
+        setProduct(oneProduct)
+      } catch (error) {
+        console.log(error);
+      }
+    })()
+  }, [id.itemID]);
 
   function toggleShown() {
     setIsShown(!isShown);
   }
 
-  useEffect(() => {
-    const product = products[itemID];
-    setProduct(product);
-  }, [itemID]);
+  if (!product) return <h1>Loading....</h1>
+
 
   return (
     <div className="bg-white flex flex-col">
@@ -46,12 +73,12 @@ const ItemDetail = ({ itemID }) => {
         </Link>
         <Image src={arrow} alt="arrow" width={16} height={16} />
         <p className="text-black text-sm lg:text-base font-normal truncate">
-          {product.title}
+          {product.name}
         </p>
       </div>
 
       {/* Main Section */}
-      <section className="flex flex-col lg:flex-row gap-8 px-4 lg:px-32 py-8">
+      {product && <section className="flex flex-col lg:flex-row gap-8 px-4 lg:px-32 py-8">
         {/* Small Images */}
         <div className="flex lg:flex-col gap-4">
           <img
@@ -88,7 +115,7 @@ const ItemDetail = ({ itemID }) => {
         {/* Product Details */}
         <div className="flex-1 flex flex-col gap-4 lg:pl-8">
           <h2 className="text-black text-2xl lg:text-4xl font-normal">
-            {product.title}
+            {product.name}
           </h2>
           <div className="flex items-center justify-between">
             <h4 className="text-[#9F9F9F] text-xl lg:text-2xl font-medium">
@@ -124,7 +151,7 @@ const ItemDetail = ({ itemID }) => {
           <div className="w-full mt-8 border border-[#9F9F9F]"></div>
           <ItemSku />
         </div>
-      </section>
+      </section>}
 
       {/* Divider */}
       <div className="w-full border border-[#FFFFFF] my-4"></div>
