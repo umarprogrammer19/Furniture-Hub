@@ -1,12 +1,37 @@
 "use client";
-import React, { useState } from "react";
-import ItemCard from "./itemCard";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import Filter from "./filter";
-import { useProducts } from "@/data/useProductStore";
-
+import ItemCard from "./itemCard";
+import { client } from "@/sanity/lib/client";
+const query = `*[_type == "product"]{
+  _id,
+  name,
+  "imageUrl": imageUrl.asset->url,
+  price,
+  description,
+  discountPercentage,
+  isFeaturedProduct,
+  stockLevel,
+  category,
+}`
 const ItemList = ({ itemsPerPage }) => {
-  const { products } = useProducts();
+
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const pro = await client.fetch(query);
+        console.log(pro);
+        setProducts(pro)
+      } catch (error) {
+        console.log(error);
+      }
+    })()
+  }, []);
+
+
   const [currentPage, setCurrentPage] = useState(1);
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -18,11 +43,11 @@ const ItemList = ({ itemsPerPage }) => {
   return (
     <div className="w-full">
       <Filter currentPage={currentPage} />
-      
+
       {/* Grid Layout - Adjust the number of columns based on screen size */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 place-items-center">
         {currentItems.map((item) => (
-          <Link key={item.id} href={`/${item.id}`}>
+          <Link key={item._id} href={`/${item._id}`}>
             <ItemCard item={item} />
           </Link>
         ))}
