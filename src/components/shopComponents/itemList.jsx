@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Filter from "./filter";
 import ItemCard from "./itemCard";
 import { client } from "@/sanity/lib/client";
+import { useSearch } from "../../../context/searchContext";
 const query = `*[_type == "product"]{
   _id,
   name,
@@ -18,6 +19,7 @@ const query = `*[_type == "product"]{
 const ItemList = ({ itemsPerPage }) => {
 
   const [products, setProducts] = useState([]);
+  const { searchQuery } = useSearch();
 
   useEffect(() => {
     (async () => {
@@ -31,7 +33,6 @@ const ItemList = ({ itemsPerPage }) => {
     })()
   }, []);
 
-
   const [currentPage, setCurrentPage] = useState(1);
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -40,13 +41,18 @@ const ItemList = ({ itemsPerPage }) => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const filteredProducts = currentItems.filter((product) =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="w-full">
       <Filter currentPage={currentPage} />
 
       {/* Grid Layout - Adjust the number of columns based on screen size */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 place-items-center">
-        {currentItems.map((item) => (
+        {filteredProducts.map((item) => (
           <Link key={item._id} href={`/${item._id}`}>
             <ItemCard item={item} />
           </Link>

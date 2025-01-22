@@ -2,6 +2,7 @@ import ItemDetail from '@/components/shopComponents/itemDetail';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import '../src/app/globals.css';
+import { SearchProvider } from '../context/searchContext';
 
 const Item = () => {
   const router = useRouter();
@@ -9,14 +10,16 @@ const Item = () => {
   const [currentID, setCurrentID] = useState(0);
 
   useEffect(() => {
-    if(itemID) {
+    if (itemID) {
       setCurrentID(itemID);
     }
   }, [itemID]);
 
   console.log("BURADAYIM LAN: " + currentID);
   return (
-    <ItemDetail itemID={currentID}/>
+    <SearchProvider>
+      <ItemDetail itemID={currentID} />
+    </SearchProvider>
   )
 }
 
