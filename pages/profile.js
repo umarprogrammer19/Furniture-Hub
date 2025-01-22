@@ -7,9 +7,10 @@ import { SearchProvider } from "../context/searchContext";
 const Profile = () => {
   return (
     <SearchProvider>
-      <AuthProvider>
-        <AuthPage />
-      </AuthProvider>
+
+    <AuthProvider>
+      <AuthPage />
+    </AuthProvider>
     </SearchProvider>
   );
 };

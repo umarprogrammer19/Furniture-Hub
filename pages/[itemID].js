@@ -10,7 +10,7 @@ const Item = () => {
   const [currentID, setCurrentID] = useState(0);
 
   useEffect(() => {
-    if (itemID) {
+    if(itemID) {
       setCurrentID(itemID);
     }
   }, [itemID]);
@@ -18,7 +18,7 @@ const Item = () => {
   console.log("BURADAYIM LAN: " + currentID);
   return (
     <SearchProvider>
-      <ItemDetail itemID={currentID} />
+    <ItemDetail itemID={currentID}/>
     </SearchProvider>
   )
 }

@@ -5,6 +5,7 @@ import Filter from "./filter";
 import ItemCard from "./itemCard";
 import { client } from "@/sanity/lib/client";
 import { useSearch } from "../../../context/searchContext";
+
 const query = `*[_type == "product"]{
   _id,
   name,
@@ -15,54 +16,83 @@ const query = `*[_type == "product"]{
   isFeaturedProduct,
   stockLevel,
   category,
-}`
+}`;
+
 const ItemList = ({ itemsPerPage }) => {
+  const { searchQuery } = useSearch();
 
   const [products, setProducts] = useState([]);
-  const { searchQuery } = useSearch();
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState({
+    category: "",
+    priceRange: { min: 0, max: 1000 },
+    stockLevel: "all",
+  });
 
   useEffect(() => {
     (async () => {
       try {
         const pro = await client.fetch(query);
-        console.log(pro);
-        setProducts(pro)
+        setProducts(pro);
+        setFilteredProducts(pro); 
       } catch (error) {
         console.log(error);
       }
-    })()
+    })();
   }, []);
 
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  const filteredProducts = currentItems.filter((product) =>
+  const filteredProduct = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  useEffect(() => {
+    let filtered = [...products];
+
+    if (filters.category) {
+      filtered = filtered.filter((product) => product.category === filters.category);
+    }
+
+    if (filters.priceRange) {
+      filtered = filtered.filter(
+        (product) => product.price >= filters.priceRange.min && product.price <= filters.priceRange.max
+      );
+    }
+
+    if (filters.stockLevel !== "all") {
+      filtered = filtered.filter((product) => product.stockLevel === filters.stockLevel);
+    }
+
+    
+    if (filters.category === "" && filters.priceRange.min === 0 && filters.priceRange.max === 1000 && filters.stockLevel === "all") {
+      setFilteredProducts(products); 
+    } else {
+      setFilteredProducts(filtered); 
+    }
+  }, [filters, products]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div className="w-full">
-      <Filter currentPage={currentPage} />
+      <Filter filters={filters} setFilters={setFilters} currentPage={currentPage} />
 
-      {/* Grid Layout - Adjust the number of columns based on screen size */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 place-items-center">
-        {filteredProducts.map((item) => (
+        {filteredProduct.map((item) => (
           <Link key={item._id} href={`/${item._id}`}>
             <ItemCard item={item} />
           </Link>
         ))}
       </div>
 
-      {/* Pagination Section */}
       <div className="flex gap-4 justify-center mt-12 mb-6">
         {Array.from(
-          { length: Math.ceil(products.length / itemsPerPage) },
+          { length: Math.ceil(filteredProducts.length / itemsPerPage) },
           (_, index) => (
             <button
               key={index + 1}

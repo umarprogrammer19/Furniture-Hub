@@ -6,7 +6,8 @@ import { SearchProvider } from '../context/searchContext';
 const Blog = () => {
   return (
     <SearchProvider>
-      <BlogPage />
+
+    <BlogPage />
     </SearchProvider>
   );
 }

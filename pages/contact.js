@@ -6,7 +6,8 @@ import { SearchProvider } from '../context/searchContext';
 const Contact = () => {
   return (
     <SearchProvider>
-      <ContactPage />
+
+    <ContactPage />
     </SearchProvider>
   )
 }

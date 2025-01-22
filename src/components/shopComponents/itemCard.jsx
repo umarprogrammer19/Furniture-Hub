@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 
 const ItemCard = ({ item }) => {
+  
   const { id, imageUrl, name, price } = item;
 
   return (

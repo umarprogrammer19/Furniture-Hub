@@ -6,7 +6,8 @@ import { SearchProvider } from '../context/searchContext';
 const Cart = () => {
   return (
     <SearchProvider>
-      <CartPage />
+
+    <CartPage />
     </SearchProvider>
   )
 }

@@ -9,6 +9,7 @@ const Navbar = ({ bgColor }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { searchQuery, setSearchQuery } = useSearch();
 
+
   // Toggle menu visibility on small screens
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
@@ -59,15 +60,13 @@ const Navbar = ({ bgColor }) => {
         <Link href={"/profile"}>
           <IoMdPerson className="text-2xl text-[black] ml-[15px]" />
         </Link>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)} // Set search query
-          placeholder="Search Products"
-          className="px-2 text-black py-1 border rounded"
-        />
-
-        <IoMdHeartEmpty className="text-2xl text-[black] ml-[15px]" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)} // Set search query
+                placeholder="Search Products"
+                className="px-2 text-black py-1 border rounded"
+              />        <IoMdHeartEmpty className="text-2xl text-[black] ml-[15px]" />
         <Link href={"/cart"}>
           <IoMdCart className="text-2xl text-[black] ml-[15px]" />
         </Link>

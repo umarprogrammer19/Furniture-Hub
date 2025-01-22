@@ -17,6 +17,10 @@ import ItemDescription from "./itemDescription";
 import ItemSku from "./itemSku";
 import SizeChoise from "./sizeChoise";
 
+// Import Toastify
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const query = `*[_type == "product"]{
   _id,
   name,
@@ -36,26 +40,37 @@ const ItemDetail = ({ itemID }) => {
   const [product, setProduct] = useState();
   const [isShown, setIsShown] = useState(false);
 
-
   useEffect(() => {
     (async () => {
       try {
         const pro = await client.fetch(query);
         const index = pro.findIndex((item) => item._id == id.itemID);
-        const oneProduct = pro[index]
-        setProduct(oneProduct)
+        const oneProduct = pro[index];
+        setProduct(oneProduct);
       } catch (error) {
         console.log(error);
       }
-    })()
+    })();
   }, [id.itemID]);
 
   function toggleShown() {
     setIsShown(!isShown);
   }
 
-  if (!product) return <h1>Loading....</h1>
+  // Toast notification function
+  const showToast = () => {
+    toast.success("Product added to cart!", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  };
 
+  if (!product) return <h1>Loading....</h1>;
 
   return (
     <div className="bg-white flex flex-col">
@@ -64,13 +79,9 @@ const ItemDetail = ({ itemID }) => {
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm lg:text-base mb-5 px-4 lg:px-32 bg-white">
-        <Link href={"/"} className="text-black">
-          Home
-        </Link>
+        <Link href={"/"} className="text-black">Home</Link>
         <Image src={arrow} alt="arrow" width={16} height={16} />
-        <Link href={"/shop"} className="text-black">
-          Shop
-        </Link>
+        <Link href={"/shop"} className="text-black">Shop</Link>
         <Image src={arrow} alt="arrow" width={16} height={16} />
         <p className="text-black text-sm lg:text-base font-normal truncate">
           {product.name}
@@ -147,7 +158,7 @@ const ItemDetail = ({ itemID }) => {
             Color
           </h5>
           <ColorSelector />
-          <ItemCart handleFunction={toggleShown} product={product} />
+          <ItemCart handleFunction={() => {toggleShown(); showToast();}} product={product} />
           <div className="w-full mt-8 border border-[#9F9F9F]"></div>
           <ItemSku />
         </div>
@@ -171,6 +182,9 @@ const ItemDetail = ({ itemID }) => {
 
       {/* Cart Popup */}
       {isShown && <CartPopup product={product} closeFunction={toggleShown} />}
+      
+      {/* Toast Container */}
+      <ToastContainer />
     </div>
   );
 };

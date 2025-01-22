@@ -1,8 +1,9 @@
 import { Poppins } from 'next/font/google'
-import { SearchProvider } from '../../context/searchContext'
 import './globals.css'
+import Navbar from '../components/navbar'
+import { SearchProvider } from '../../context/searchContext'
 
-const inter = Poppins({ weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'], subsets: ['latin'] })
+const inter = Poppins({ weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'], subsets: ['latin']})
 
 export const metadata = {
   title: 'Create Next App',
@@ -11,10 +12,12 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <SearchProvider>
-      <html lang="en">
-        <body className={inter.className}>{children}</body>
-      </html>
-    </SearchProvider>
+    <html lang="en">
+            <SearchProvider>
+      <body className={inter.className}>
+        {children}
+        </body>
+        </SearchProvider>
+    </html>
   )
 }
