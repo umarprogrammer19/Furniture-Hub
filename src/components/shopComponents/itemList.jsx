@@ -42,7 +42,7 @@ const ItemList = ({ itemsPerPage }) => {
     })();
   }, []);
 
-  const filteredProduct = products.filter((product) =>
+  const filteredProduct = filteredProducts.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
