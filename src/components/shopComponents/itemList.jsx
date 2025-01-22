@@ -46,7 +46,7 @@ const ItemList = ({ itemsPerPage }) => {
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
+// hello
   useEffect(() => {
     let filtered = [...products];
 
