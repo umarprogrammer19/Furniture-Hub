@@ -35,7 +35,7 @@ const ItemList = ({ itemsPerPage }) => {
       try {
         const pro = await client.fetch(query);
         setProducts(pro);
-        setFilteredProducts(pro); 
+        setFilteredProducts(pro);
       } catch (error) {
         console.log(error);
       }
@@ -64,26 +64,42 @@ const ItemList = ({ itemsPerPage }) => {
       filtered = filtered.filter((product) => product.stockLevel === filters.stockLevel);
     }
 
-    
-    if (filters.category === "" && filters.priceRange.min === 0 && filters.priceRange.max === 1000 && filters.stockLevel === "all") {
-      setFilteredProducts(products); 
+    if (
+      filters.category === "" &&
+      filters.priceRange.min === 0 &&
+      filters.priceRange.max === 1000 &&
+      filters.stockLevel === "all"
+    ) {
+      setFilteredProducts(products);
     } else {
-      setFilteredProducts(filtered); 
+      setFilteredProducts(filtered);
     }
   }, [filters, products]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredProduct.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(filteredProduct.length / itemsPerPage)) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
 
   return (
     <div className="w-full">
       <Filter filters={filters} setFilters={setFilters} currentPage={currentPage} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 place-items-center">
-        {filteredProduct.map((item) => (
+        {currentItems.map((item) => (
           <Link key={item._id} href={`/${item._id}`}>
             <ItemCard item={item} />
           </Link>
@@ -91,22 +107,34 @@ const ItemList = ({ itemsPerPage }) => {
       </div>
 
       <div className="flex gap-4 justify-center mt-12 mb-6">
+        <button
+          onClick={handlePreviousPage}
+          className="bg-[#FFF9E5] border cursor-pointer px-4 py-2 rounded-lg text-black hover:bg-[#FBEBB5] transition-colors duration-300"
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
         {Array.from(
-          { length: Math.ceil(filteredProducts.length / itemsPerPage) },
+          { length: Math.ceil(filteredProduct.length / itemsPerPage) },
           (_, index) => (
             <button
               key={index + 1}
               onClick={() => paginate(index + 1)}
-              className={`
-                ${currentPage === index + 1 ? "bg-[#FBEBB5]" : "bg-[#FFF9E5]"} 
-                border cursor-pointer mx-1 px-4 py-2 rounded-lg text-black 
-                hover:bg-[#FBEBB5] transition-colors duration-300
-              `}
+              className={`${
+                currentPage === index + 1 ? "bg-[#FBEBB5]" : "bg-[#FFF9E5]"
+              } border cursor-pointer mx-1 px-4 py-2 rounded-lg text-black hover:bg-[#FBEBB5] transition-colors duration-300`}
             >
               {index + 1}
             </button>
           )
         )}
+        <button
+          onClick={handleNextPage}
+          className="bg-[#FFF9E5] border cursor-pointer px-4 py-2 rounded-lg text-black hover:bg-[#FBEBB5] transition-colors duration-300"
+          disabled={currentPage === Math.ceil(filteredProduct.length / itemsPerPage)}
+        >
+          Next
+        </button>
       </div>
     </div>
   );
