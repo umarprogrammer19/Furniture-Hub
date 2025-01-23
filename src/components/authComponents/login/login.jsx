@@ -1,87 +1,103 @@
-"use client"
-import { useEffect, useState } from "react";
-import { useAuth } from "../../../services/authContext";
-import { useRouter } from "next/router";
+"use client";
 
-const LoginForm = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
-  const { authenticate } = useAuth();
-  const router = useRouter();
+import { useState } from "react";
+import Link from "next/link";
+import { setCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
+import { loginUser } from "@/api/auth.js";
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (await authenticate(email, password)) {
-      router.push("/shop");
+export default function Login() {
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setError(""); // Reset any previous errors
+        setIsLoading(true);
+
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get("email");
+        const password = formData.get("password");
+
+        try {
+            const { accessToken } = await loginUser(email, password);
+            console.log("Access Token:", accessToken);
+
+            // Set cookie and localStorage for authenticated state
+            setCookie("accessToken", accessToken, {
+                path: "/",
+                secure: true,
+                sameSite: "strict",
+            });
+            localStorage.setItem("accessToken", accessToken);
+
+            // Redirect user to home page
+            router.push("/");
+        } catch (err) {
+            // Handle errors from the API (could be invalid credentials or other issues)
+            setError(err?.response?.data?.message || "Invalid email or password");
+        } finally {
+            setIsLoading(false);
+        }
     }
-  };
 
-  return (
-    <div className="flex justify-center items-center min-h-screen bg-[#FBEBB5] py-8 px-4">
-      <div className="bg-white p-10 rounded-xl shadow-lg w-full max-w-[400px]">
-        <h2 className="text-center mb-6 text-black text-3xl font-semibold">Login</h2>
-        <form className="flex flex-col" onSubmit={handleSubmit}>
-          {/* Email input */}
-          <div className="mb-6">
-            <label htmlFor="username" className="text-black text-lg font-medium mb-2">
-              Username or Email Address
-            </label>
-            <input
-              type="text"
-              id="username"
-              className="w-full px-4 py-3 border border-[#9F9F9F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FBEBB5] transition-all duration-200"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
+                <div className="text-center">
+                    <h2 className="mt-6 text-3xl font-bold text-gray-900">Welcome back</h2>
+                    <p className="mt-2 text-sm text-gray-600">Please sign in to your account</p>
+                </div>
+                <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+                    {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+                    <div className="space-y-4">
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                                Email address
+                            </label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                autoComplete="email"
+                                required
+                                className="text-black mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-700 focus:border-yellow-700"
+                                placeholder="Enter your email"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                Password
+                            </label>
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                autoComplete="current-password"
+                                required
+                                className="text-black mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-700 focus:border-yellow-700"
+                                placeholder="Enter your password"
+                            />
+                        </div>
+                    </div>
 
-          {/* Password input */}
-          <div className="mb-6">
-            <label htmlFor="password" className="text-black text-lg font-medium mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              className="w-full px-4 py-3 border border-[#9F9F9F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FBEBB5] transition-all duration-200"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+                    <button
+                        type="submit"
+                        className="w-full bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded-md"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? "Signing in..." : "Sign in"}
+                    </button>
 
-          {/* Remember me checkbox */}
-          <div className="flex items-center mb-6">
-            <input
-              type="checkbox"
-              id="rememberMe"
-              className="rounded-md border border-[#9F9F9F] bg-[#FFF] h-5 w-5"
-              checked={remember}
-              onChange={() => setRemember(!remember)}
-            />
-            <label htmlFor="rememberMe" className="text-black ml-2 text-sm font-normal">
-              Remember Me
-            </label>
-          </div>
-
-          {/* Submit button and additional link */}
-          <div className="flex flex-col items-center gap-4">
-            <button
-              type="submit"
-              className="w-full py-3 bg-[#FBEBB5] text-black rounded-2xl text-xl font-semibold transition-all"
-            >
-              Login
-            </button>
-            <p className="text-black text-sm font-light">
-              <span className="text-[#FBEBB5] cursor-pointer">Lost Your Password?</span>
-            </p>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-export default LoginForm;
+                    <div className="text-center text-sm">
+                        <span className="text-gray-600">Don't have an account?</span>{" "}
+                        <Link href="/signup" className="text-yellow-700 hover:text-yellow-800 font-medium">
+                            Sign up
+                        </Link>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}

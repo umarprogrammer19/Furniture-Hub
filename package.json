@@ -14,6 +14,7 @@
     "@sanity/image-url": "^1.1.0",
     "@sanity/vision": "^3.71.0",
     "axios": "^1.6.2",
+    "cookies-next": "^5.1.0",
     "lucide-react": "^0.298.0",
     "next": "^14.2.20",
     "next-sanity": "^9.8.39",
